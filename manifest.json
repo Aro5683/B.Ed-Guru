@@ -27,13 +27,7 @@
       "short_name": "Don't Uninstall me🥺",
       "description": "Important notice regarding your registration data",
       "url": "/dont-uninstall.html",
-      "icons": [
-        {
-          "src": "icon-192.png",
-          "sizes": "192x192",
-          "type": "image/png"
-        }
-      ]
+    
     }
   ],
   "prefer_related_applications": true,
