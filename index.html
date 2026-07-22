@@ -8,7 +8,10 @@
 
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1e3a8a">
-<link rel="icon" type="image/svg+xml" href="/icon-512.png" />
+
+    <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
+<link rel="icon" type="image/png" sizes="512x512" href="./icon-512.png" />
+<link rel="apple-touch-icon" href="./icon-192.png" />
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
@@ -37,7 +40,7 @@
 
     h1{
 
-        font-size: 22px;
+        font-size: 20px;
     font-weight: 700;
     letter-spacing: -0.5px;
     background: linear-gradient(135deg, #1e3a8a, #2563eb);
@@ -631,7 +634,7 @@ img {
   <!-- PAGE 1: Not Installed -> Download / Install Page -->
   <div id="page-install" class="pwa-step-card hidden">
     <h1>Download Our Official App</h1>
-    <p style="font-size: 16px; color: var(--text-muted); margin-top: 8px;">To access protected features and content, please install our official app below.</p>
+    <p style="font-size: 13px; color: var(--text-muted); margin-top: 8px;">To access protected features and content, please install our official app below.</p>
     
     <button id="btn-install" class="primary-btn" style="margin-top: 15px;">Install App</button>
 
@@ -648,7 +651,7 @@ img {
     <p style="font-size: 16px; color: var(--text-muted); margin-top: 8px;">Thank you! You are already set up.</p>
     <p class="protection-notice"> Content is fully protected. Please open the installed app from your home screen to use our services.</p>
     
-    <button id="btn-launch" class="primary-btn">Launch App Instructions</button>
+    <button id="btn-launch" class="primary-btn">Launch App</button>
   </div>
 </div>
 
