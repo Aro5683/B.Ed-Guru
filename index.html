@@ -34,6 +34,17 @@
     font-family: 'Poppins', sans-serif;
 }
 
+
+    h1{
+
+        font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, #1e3a8a, #2563eb);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+    }
 body {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -592,11 +603,10 @@ img {
 }
 
 .protection-notice {
-  background-color: #fff3cd;
-  color: #856404;
+
   padding: 10px;
   border-radius: 6px;
-  font-weight: bold;
+
   margin: 15px 0;
 }
 
@@ -620,8 +630,8 @@ img {
 <div id="pwaFlowContainer">
   <!-- PAGE 1: Not Installed -> Download / Install Page -->
   <div id="page-install" class="pwa-step-card hidden">
-    <h2>Download Our Official App</h2>
-    <p style="font-size: 13px; color: var(--text-muted); margin-top: 8px;">To access protected features and content, please install our official app below.</p>
+    <h1>Download Our Official App</h1>
+    <p style="font-size: 16px; color: var(--text-muted); margin-top: 8px;">To access protected features and content, please install our official app below.</p>
     
     <button id="btn-install" class="primary-btn" style="margin-top: 15px;">Install App</button>
 
@@ -634,9 +644,9 @@ img {
 
   <!-- PAGE 2: Already Installed Page (When opened in Browser) -->
   <div id="page-already-installed" class="pwa-step-card hidden">
-    <h2>App Already Installed</h2>
-    <p style="font-size: 13px; color: var(--text-muted); margin-top: 8px;">Thank you! You are already set up.</p>
-    <p class="protection-notice">🔒 Content is fully protected. Please open the installed app from your home screen to use our services.</p>
+    <h1>App Already Installed</h1>
+    <p style="font-size: 16px; color: var(--text-muted); margin-top: 8px;">Thank you! You are already set up.</p>
+    <p class="protection-notice"> Content is fully protected. Please open the installed app from your home screen to use our services.</p>
     
     <button id="btn-launch" class="primary-btn">Launch App Instructions</button>
   </div>
