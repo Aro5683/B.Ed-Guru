@@ -1,4 +1,5 @@
-const CACHE_NAME = 'bed-guru-v1';
+const CACHE_NAME = 'bed-guru-v2'; // Updated cache version
+
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -8,52 +9,62 @@ const ASSETS_TO_CACHE = [
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css'
 ];
 
-// Install Event - Pre-cache essential resources
+// 1. INSTALL: Safe Pre-caching
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
-    })
+    caches.open(CACHE_NAME).then(async (cache) => {
+      // Loop individually so one failing 404 image doesn't stop SW install
+      const cachePromises = ASSETS_TO_CACHE.map(async (url) => {
+        try {
+          await cache.add(url);
+        } catch (err) {
+          console.warn(`[SW] Pre-cache failed for ${url}:`, err);
+        }
+      });
+      await Promise.all(cachePromises);
+    }).then(() => self.skipWaiting())
   );
-  self.skipWaiting();
 });
 
-// Activate Event - Clean up old caches
+// 2. ACTIVATE: Clean up old caches immediately
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cache) => {
           if (cache !== CACHE_NAME) {
+            console.log('[SW] Deleting old cache version:', cache);
             return caches.delete(cache);
           }
         })
       );
-    })
+    }).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
-// Fetch Event - Cache First, fallback to Network Strategy
+// 3. FETCH: Network-First (Online = Fresh Updates, Offline = Cache)
 self.addEventListener('fetch', (event) => {
+  // Only handle HTTP/HTTPS GET requests
+  if (event.request.method !== 'GET' || !event.request.url.startsWith('http')) {
+    return;
+  }
+
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      return fetch(event.request).then((response) => {
-        // Cache dynamic responses if valid
-        if (!response || response.status !== 200 || response.type !== 'basic') {
-          return response;
+    fetch(event.request)
+      .then((networkResponse) => {
+        // If network request succeeds (Status 200/opaque CDN), update cache
+        if (networkResponse && networkResponse.status === 200) {
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
         }
-        const responseToCache = response.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
-        });
-        return response;
-      });
-    }).catch(() => {
-      // Offline fallback handling if needed
-    })
+        return networkResponse;
+      })
+      .catch(() => {
+        // Network failed (User is OFFLINE) -> Serve from Cache
+        console.log('[SW] Offline mode: Loading from cache ->', event.request.url);
+        return caches.match(event.request);
+      })
   );
 });
