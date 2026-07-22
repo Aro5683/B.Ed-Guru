@@ -28,19 +28,12 @@
 }
 
 * {
-    margin:0;
+    margin: 0;
     padding: 0;
     box-sizing: border-box;
     font-family: 'Poppins', sans-serif;
 }
-h1{
-    font-size: 22px;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-    background: linear-gradient(135deg, #1e3a8a, #2563eb);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
+
 body {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -599,11 +592,11 @@ img {
 }
 
 .protection-notice {
- 
-font-size: small;
+  background-color: #fff3cd;
+  color: #856404;
   padding: 10px;
   border-radius: 6px;
- 
+  font-weight: bold;
   margin: 15px 0;
 }
 
@@ -627,23 +620,23 @@ font-size: small;
 <div id="pwaFlowContainer">
   <!-- PAGE 1: Not Installed -> Download / Install Page -->
   <div id="page-install" class="pwa-step-card hidden">
-    <h1>Download Our Official App</h1>
-    <p style="font-size: 16px; color: var(--text-muted); margin-top: 8px;">To access protected features and content, please install our official app below.</p>
+    <h2>Download Our Official App</h2>
+    <p style="font-size: 13px; color: var(--text-muted); margin-top: 8px;">To access protected features and content, please install our official app below.</p>
     
     <button id="btn-install" class="primary-btn" style="margin-top: 15px;">Install App</button>
 
     <!-- Download Progress View (hidden by default) -->
     <div id="download-box" class="hidden" style="margin-top: 15px;">
-      <p style="font-size: 16px;">Downloading started... please wait</p>
+      <p style="font-size: 13px;">Downloading started... please wait</p>
       <div id="timer">30</div>
     </div>
   </div>
 
   <!-- PAGE 2: Already Installed Page (When opened in Browser) -->
   <div id="page-already-installed" class="pwa-step-card hidden">
-    <h1>App Already Installed</h1>
+    <h2>App Already Installed</h2>
     <p style="font-size: 13px; color: var(--text-muted); margin-top: 8px;">Thank you! You are already set up.</p>
-    <p class="protection-notice"> Content is fully protected. Please open the installed app from your home screen to use our services.</p>
+    <p class="protection-notice">🔒 Content is fully protected. Please open the installed app from your home screen to use our services.</p>
     
     <button id="btn-launch" class="primary-btn">Launch App Instructions</button>
   </div>
@@ -1705,74 +1698,13 @@ const btnLaunch = document.getElementById('btn-launch');
 if(btnLaunch) {
     btnLaunch.addEventListener('click', () => {
       if (!isStandalone()) {
-        showPopup("📱 Tap the 'B.Ed Guru' icon on your mobile home screen to open the app.");
+        showPopup("📱 Please locate and tap the 'B.Ed Guru' icon on your mobile home screen to open the app.");
       } else {
         proceedToApp();
       }
     });
 }
 </script>
-<!-- Button to trigger the breakup dialog inside app settings -->
-  <button class="btn-delete-app" onclick="openBreakupModal()">Delete Account / Reset App</button>
 
-  <!-- 3. THE EMOTIONAL BREAKUP MODAL -->
-  <div id="breakupModal" class="pwa-modal-overlay">
-    <div class="pwa-modal-card">
-      <div class="pwa-emoji">💔</div>
-      <h3>Are you ending our bond?</h3>
-      <p>
-        Is this really the end? What about all your B.Ed study materials, saved notes, and exam prep progress? 🥺
-        <br><br>
-        If you reset now, everything will be deleted forever!
-      </p>
-
-      <div class="pwa-btn-group">
-        <button class="btn-stay" onclick="closeBreakupModal()">
-          No, I can't leave you! ❤️
-        </button>
-        <button class="btn-leave" onclick="confirmResetApp()">
-          Yes, break my heart & reset app...
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 4. JAVASCRIPT FOR MODAL & SHORTCUT CONTROL -->
-  <script>
-    // Open Modal
-    function openBreakupModal() {
-      document.getElementById('breakupModal').classList.add('active');
-    }
-
-    // Close Modal when user clicks "No, I can't leave you!"
-    function closeBreakupModal() {
-      document.getElementById('breakupModal').classList.remove('active');
-      alert("I knew you wouldn't leave! Let's get back to studying 🎓✨");
-    }
-
-    // Handle full app clear when user confirms
-    async function confirmResetApp() {
-      alert("Goodbye... Clearing all B.Ed Guru data 😭");
-
-      // Clear local storage and caches
-      localStorage.clear();
-      sessionStorage.clear();
-
-      if ('caches' in window) {
-        const cacheNames = await caches.keys();
-        await Promise.all(cacheNames.map(name => caches.delete(name)));
-      }
-
-      // Reload app
-      window.location.reload();
-    }
-
-    // Check if user came from long-press manifest shortcut (#settings)
-    window.addEventListener('DOMContentLoaded', () => {
-      if (window.location.hash === '#settings') {
-        openBreakupModal();
-      }
-    });
-  </script>
 </body>
 </html>
