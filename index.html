@@ -585,30 +585,30 @@ img {
     <p id="welcomeText">Smart Mobile App Platform</p>
 </div>
 
-<!-- INSTALL APP LANDING PANEL -->
+<!-- MANDATORY PWA LANDING SCREEN (Always shown in browser) -->
 <div id="installAppContainer" class="register glass-panel" style="display: block;">
-    <!-- Prompt State -->
+    <!-- State 1: Download Official App Prompt -->
     <div id="promptState" style="display: block;">
         <i class="fa-solid fa-download" style="font-size: 42px; color: var(--primary); margin-bottom: 16px;"></i>
         <h2>Download Official App</h2>
         <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px; line-height: 1.5;">
-            Get quick offline access, instant notifications, and all study materials right on your device.
+            To use B.Ed Guru, please install the official application on your device.
         </p>
         <button id="installBtn" class="primary-btn"><i class="fa-solid fa-download"></i> Install App</button>
     </div>
 
-    <!-- Success / Open App State -->
+    <!-- State 2: App Installed / Open Installed App Prompt -->
     <div id="successState" style="display: none;">
         <i class="fa-solid fa-circle-check" style="font-size: 42px; color: #10b981; margin-bottom: 16px;"></i>
         <h2>App Installed!</h2>
         <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px; line-height: 1.5;">
-            Thank you for downloading B.Ed Guru. Click below to continue to the application.
+            B.Ed Guru is installed on your device. Please open the installed app from your home screen or app launcher to continue.
         </p>
-        <button id="openAppBtn" class="primary-btn"><i class="fa-solid fa-arrow-right-to-bracket"></i> Open App</button>
+        <button id="openAppBtn" class="primary-btn"><i class="fa-solid fa-mobile-screen-button"></i> Launch App</button>
     </div>
 </div>
 
-<!-- STUDENT REGISTRATION FORM PANEL (Shown after app is opened/installed if unregistered) -->
+<!-- STUDENT REGISTRATION FORM PANEL (Only accessible inside installed PWA) -->
 <div id="registerPage" class="register glass-panel" style="display: none;">
     <div id="appContent" style="display: block;">
         <h2>Student Registration</h2>
@@ -882,6 +882,13 @@ const PROXY_URL = "https://whatsapp.arotesting54.workers.dev/?url=";
 let pendingDriveUrl = "";
 let deferredPrompt = null;
 
+// Helper function to check if the app is opened inside installed PWA standalone mode
+function isStandalonePWA() {
+    return window.matchMedia('(display-mode: standalone)').matches || 
+           window.navigator.standalone === true || 
+           document.referrer.includes('android-app://');
+}
+
 function showPopup(msg){
     document.getElementById("popupMsg").innerText = msg;
     document.getElementById("popup").style.display = "flex";
@@ -891,32 +898,53 @@ function clearError(id) {
     document.getElementById("container-" + id).classList.remove("input-error");
 }
 
-// Listen for native PWA install prompt event
+// Catch PWA Install Prompt
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
 });
 
+// App Installed Event Listener
+window.addEventListener('appinstalled', () => {
+    deferredPrompt = null;
+    if (!isStandalonePWA()) {
+        document.getElementById('promptState').style.display = 'none';
+        document.getElementById('successState').style.display = 'block';
+    }
+});
+
 window.addEventListener('DOMContentLoaded', () => {
+    // SECURITY & MODE CHECK
+    if (isStandalonePWA()) {
+        // User opened from installed PWA icon on their home screen!
+        document.getElementById('installAppContainer').style.display = 'none';
+        let user = JSON.parse(localStorage.getItem("user"));
+        if (user) {
+            initDashboard();
+        } else {
+            document.getElementById('registerPage').style.display = 'block';
+        }
+    } else {
+        // User is opening inside regular browser (Chrome, Safari, etc.)
+        // STRICT BLOCK: Hide app features and show install panel only
+        document.getElementById('registerPage').style.display = 'none';
+        document.getElementById('installAppContainer').style.display = 'block';
+        
+        // If app is already installed on device, prompt them to launch it from home screen
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            document.getElementById('promptState').style.display = 'none';
+            document.getElementById('successState').style.display = 'block';
+        }
+    }
+
     const inputs = ['name', 'gender', 'semester', 'medium', 'pedagogy', 'phone'];
-    
     inputs.forEach(id => {
         const element = document.getElementById(id);
         if (element) {
-            element.addEventListener('input', (e) => {
-                localStorage.setItem('draft_' + id, e.target.value);
-            });
-            element.addEventListener('change', (e) => {
-                localStorage.setItem('draft_' + id, e.target.value);
-            });
-        }
-    });
-
-    inputs.forEach(id => {
-        const savedValue = localStorage.getItem('draft_' + id);
-        const element = document.getElementById(id);
-        if (savedValue && element) {
-            element.value = savedValue;
+            element.addEventListener('input', (e) => localStorage.setItem('draft_' + id, e.target.value));
+            element.addEventListener('change', (e) => localStorage.setItem('draft_' + id, e.target.value));
+            const savedValue = localStorage.getItem('draft_' + id);
+            if (savedValue) element.value = savedValue;
         }
     });
 
@@ -930,14 +958,9 @@ window.addEventListener('DOMContentLoaded', () => {
                 if (outcome === 'accepted') {
                     document.getElementById('promptState').style.display = 'none';
                     document.getElementById('successState').style.display = 'block';
-                } else {
-                    // Even if user declines browser prompt, allow proceeding to app
-                    proceedToApp();
                 }
             } else {
-                // If browser doesn't support/trigger beforeinstallprompt or app is already installed
-                document.getElementById('promptState').style.display = 'none';
-                document.getElementById('successState').style.display = 'block';
+                showPopup("ℹ️ Tap your browser menu (⋮ or Share) and select 'Add to Home Screen' to install.");
             }
         });
     }
@@ -945,22 +968,18 @@ window.addEventListener('DOMContentLoaded', () => {
     const openAppBtn = document.getElementById('openAppBtn');
     if(openAppBtn) {
         openAppBtn.addEventListener('click', () => {
-            proceedToApp();
+            showPopup("📱 Please tap the installed 'B.Ed Guru' icon from your home screen to open the app.");
         });
     }
 });
 
-function proceedToApp() {
-    document.getElementById('installAppContainer').style.display = 'none';
-    let user = JSON.parse(localStorage.getItem("user"));
-    if(user) {
-        initDashboard();
-    } else {
-        document.getElementById('registerPage').style.display = 'block';
-    }
-}
-
 function registerUser(){
+    // Ensure registration only happens in PWA window
+    if (!isStandalonePWA()) {
+        showPopup("⚠️ Please install and open the app from your Home Screen to register.");
+        return;
+    }
+
     const fields = ["name", "gender", "semester", "medium", "pedagogy", "phone"];
     let hasError = false;
     let firstErrorElement = null;
@@ -1603,7 +1622,7 @@ function sendChatbotRequest() {
 </script>
 
 <script>
-// Register Service Worker
+// Service Worker Registration
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js')
