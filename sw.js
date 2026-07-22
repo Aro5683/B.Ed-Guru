@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bed-guru-v2'; // Updated cache version
+const CACHE_NAME = 'bed-guru-v3'; // Updated cache version
 
 const ASSETS_TO_CACHE = [
   './',
