@@ -569,6 +569,37 @@ img {
     height: 15px;
 }
 
+.hidden {
+  display: none !important;
+}
+
+.pwa-step-card {
+  max-width: 400px;
+  margin: 20px auto;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur);
+  padding: 24px;
+  border-radius: 20px;
+  text-align: center;
+}
+
+#timer {
+  font-size: 32px;
+  font-weight: bold;
+  color: #ff5722;
+  margin-top: 10px;
+}
+
+.protection-notice {
+  background-color: #fff3cd;
+  color: #856404;
+  padding: 10px;
+  border-radius: 6px;
+  font-weight: bold;
+  margin: 15px 0;
+}
+
 @keyframes qaPopupScale { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 </style>
@@ -585,30 +616,32 @@ img {
     <p id="welcomeText">Smart Mobile App Platform</p>
 </div>
 
-<!-- MANDATORY PWA LANDING SCREEN (Always shown in browser) -->
-<div id="installAppContainer" class="register glass-panel" style="display: block;">
-    <!-- State 1: Download Official App Prompt -->
-    <div id="promptState" style="display: block;">
-        <i class="fa-solid fa-download" style="font-size: 42px; color: var(--primary); margin-bottom: 16px;"></i>
-        <h2>Download Official App</h2>
-        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px; line-height: 1.5;">
-            To use B.Ed Guru, please install the official application on your device.
-        </p>
-        <button id="installBtn" class="primary-btn"><i class="fa-solid fa-download"></i> Install App</button>
-    </div>
+<!-- CONTAINER FOR INITIAL PWA WORKFLOW -->
+<div id="pwaFlowContainer">
+  <!-- PAGE 1: Not Installed -> Download / Install Page -->
+  <div id="page-install" class="pwa-step-card hidden">
+    <h2>Download Our Official App</h2>
+    <p style="font-size: 13px; color: var(--text-muted); margin-top: 8px;">To access protected features and content, please install our official app below.</p>
+    
+    <button id="btn-install" class="primary-btn" style="margin-top: 15px;">Install App</button>
 
-    <!-- State 2: App Installed / Open Installed App Prompt -->
-    <div id="successState" style="display: none;">
-        <i class="fa-solid fa-circle-check" style="font-size: 42px; color: #10b981; margin-bottom: 16px;"></i>
-        <h2>App Installed!</h2>
-        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px; line-height: 1.5;">
-            B.Ed Guru is installed on your device. Please open the installed app from your home screen or app launcher to continue.
-        </p>
-        <button id="openAppBtn" class="primary-btn"><i class="fa-solid fa-mobile-screen-button"></i> Launch App</button>
+    <!-- Download Progress View (hidden by default) -->
+    <div id="download-box" class="hidden" style="margin-top: 15px;">
+      <p style="font-size: 13px;">Downloading started... please wait</p>
+      <div id="timer">30</div>
     </div>
+  </div>
+
+  <!-- PAGE 2: Already Installed Page (When opened in Browser) -->
+  <div id="page-already-installed" class="pwa-step-card hidden">
+    <h2>App Already Installed</h2>
+    <p style="font-size: 13px; color: var(--text-muted); margin-top: 8px;">Thank you! You are already set up.</p>
+    <p class="protection-notice">🔒 Content is fully protected. Please open the app to use our services.</p>
+    
+    <button id="btn-launch" class="primary-btn">Launch App</button>
+  </div>
 </div>
 
-<!-- STUDENT REGISTRATION FORM PANEL (Only accessible inside installed PWA) -->
 <div id="registerPage" class="register glass-panel" style="display: none;">
     <div id="appContent" style="display: block;">
         <h2>Student Registration</h2>
@@ -882,13 +915,6 @@ const PROXY_URL = "https://whatsapp.arotesting54.workers.dev/?url=";
 let pendingDriveUrl = "";
 let deferredPrompt = null;
 
-// Helper function to check if the app is opened inside installed PWA standalone mode
-function isStandalonePWA() {
-    return window.matchMedia('(display-mode: standalone)').matches || 
-           window.navigator.standalone === true || 
-           document.referrer.includes('android-app://');
-}
-
 function showPopup(msg){
     document.getElementById("popupMsg").innerText = msg;
     document.getElementById("popup").style.display = "flex";
@@ -898,88 +924,67 @@ function clearError(id) {
     document.getElementById("container-" + id).classList.remove("input-error");
 }
 
-// Catch PWA Install Prompt
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
 });
 
-// App Installed Event Listener
-window.addEventListener('appinstalled', () => {
-    deferredPrompt = null;
-    if (!isStandalonePWA()) {
-        document.getElementById('promptState').style.display = 'none';
-        document.getElementById('successState').style.display = 'block';
-    }
-});
-
 window.addEventListener('DOMContentLoaded', () => {
-    // SECURITY & MODE CHECK
-    if (isStandalonePWA()) {
-        // User opened from installed PWA icon on their home screen!
-        document.getElementById('installAppContainer').style.display = 'none';
-        let user = JSON.parse(localStorage.getItem("user"));
-        if (user) {
-            initDashboard();
-        } else {
-            document.getElementById('registerPage').style.display = 'block';
-        }
-    } else {
-        // User is opening inside regular browser (Chrome, Safari, etc.)
-        // STRICT BLOCK: Hide app features and show install panel only
-        document.getElementById('registerPage').style.display = 'none';
-        document.getElementById('installAppContainer').style.display = 'block';
-        
-        // If app is already installed on device, prompt them to launch it from home screen
-        if (window.matchMedia('(display-mode: standalone)').matches) {
-            document.getElementById('promptState').style.display = 'none';
-            document.getElementById('successState').style.display = 'block';
-        }
-    }
-
     const inputs = ['name', 'gender', 'semester', 'medium', 'pedagogy', 'phone'];
+    
     inputs.forEach(id => {
         const element = document.getElementById(id);
         if (element) {
-            element.addEventListener('input', (e) => localStorage.setItem('draft_' + id, e.target.value));
-            element.addEventListener('change', (e) => localStorage.setItem('draft_' + id, e.target.value));
-            const savedValue = localStorage.getItem('draft_' + id);
-            if (savedValue) element.value = savedValue;
+            element.addEventListener('input', (e) => {
+                localStorage.setItem('draft_' + id, e.target.value);
+            });
+            element.addEventListener('change', (e) => {
+                localStorage.setItem('draft_' + id, e.target.value);
+            });
         }
     });
 
-    const installBtn = document.getElementById('installBtn');
-    if(installBtn) {
-        installBtn.addEventListener('click', async () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                deferredPrompt = null;
-                if (outcome === 'accepted') {
-                    document.getElementById('promptState').style.display = 'none';
-                    document.getElementById('successState').style.display = 'block';
-                }
-            } else {
-                showPopup("ℹ️ Tap your browser menu (⋮ or Share) and select 'Add to Home Screen' to install.");
-            }
-        });
-    }
+    inputs.forEach(id => {
+        const savedValue = localStorage.getItem('draft_' + id);
+        const element = document.getElementById(id);
+        if (savedValue && element) {
+            element.value = savedValue;
+        }
+    });
 
-    const openAppBtn = document.getElementById('openAppBtn');
-    if(openAppBtn) {
-        openAppBtn.addEventListener('click', () => {
-            showPopup("📱 Please tap the installed 'B.Ed Guru' icon from your home screen to open the app.");
-        });
+    if (isStandalone()) {
+        proceedToApp();
+    } else {
+        const isAppInstalled = localStorage.getItem('pwa_installed') === 'true';
+        if (isAppInstalled) {
+            showInstallView('page-already-installed');
+        } else {
+            showInstallView('page-install');
+        }
     }
 });
 
-function registerUser(){
-    // Ensure registration only happens in PWA window
-    if (!isStandalonePWA()) {
-        showPopup("⚠️ Please install and open the app from your Home Screen to register.");
-        return;
-    }
+function isStandalone() {
+    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+}
 
+function showInstallView(pageId) {
+    document.querySelectorAll('.pwa-step-card').forEach(p => p.classList.add('hidden'));
+    const target = document.getElementById(pageId);
+    if(target) target.classList.remove('hidden');
+}
+
+function proceedToApp() {
+    document.getElementById('pwaFlowContainer').style.display = 'none';
+    let user = JSON.parse(localStorage.getItem("user"));
+    if(user) {
+        initDashboard();
+    } else {
+        document.getElementById('registerPage').style.display = 'block';
+    }
+}
+
+function registerUser(){
     const fields = ["name", "gender", "semester", "medium", "pedagogy", "phone"];
     let hasError = false;
     let firstErrorElement = null;
@@ -1060,7 +1065,7 @@ function joinWhatsapp(){
 function initDashboard(){
     let user = JSON.parse(localStorage.getItem("user"));
     if(user){
-        document.getElementById("installAppContainer").style.display="none";
+        document.getElementById("pwaFlowContainer").style.display="none";
         document.getElementById("registerPage").style.display="none";
         document.getElementById("nav").style.display="flex";
         document.getElementById("welcomeText").innerText = "Welcome, " + user.name;
@@ -1619,9 +1624,7 @@ function sendChatbotRequest() {
         document.getElementById("chatbotSuccessModal").style.display = "flex";
     }, 400);
 }
-</script>
 
-<script>
 // Service Worker Registration
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -1649,6 +1652,49 @@ window.addEventListener('online', () => {
 window.addEventListener('offline', () => {
   console.log('Internet disconnected. Switched to cached offline mode.');
 });
+
+// PWA Install / Launch handlers
+const btnInstall = document.getElementById('btn-install');
+const downloadBox = document.getElementById('download-box');
+const timerEl = document.getElementById('timer');
+
+if(btnInstall) {
+    btnInstall.addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        deferredPrompt = null;
+        if (outcome !== 'accepted') {
+          return;
+        }
+      }
+
+      btnInstall.classList.add('hidden');
+      downloadBox.classList.remove('hidden');
+
+      let timeLeft = 30;
+      timerEl.textContent = timeLeft;
+
+      const countdown = setInterval(() => {
+        timeLeft--;
+        timerEl.textContent = timeLeft;
+
+        if (timeLeft <= 0) {
+          clearInterval(countdown);
+          localStorage.setItem('pwa_installed', 'true');
+          showInstallView('page-already-installed');
+        }
+      }, 1000);
+    });
+}
+
+const btnLaunch = document.getElementById('btn-launch');
+if(btnLaunch) {
+    btnLaunch.addEventListener('click', () => {
+      proceedToApp();
+    });
+}
 </script>
+
 </body>
 </html>
