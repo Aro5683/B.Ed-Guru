@@ -636,9 +636,9 @@ img {
   <div id="page-already-installed" class="pwa-step-card hidden">
     <h2>App Already Installed</h2>
     <p style="font-size: 13px; color: var(--text-muted); margin-top: 8px;">Thank you! You are already set up.</p>
-    <p class="protection-notice">🔒 Content is fully protected. Please open the app to use our services.</p>
+    <p class="protection-notice">🔒 Content is fully protected. Please open the installed app from your home screen to use our services.</p>
     
-    <button id="btn-launch" class="primary-btn">Launch App</button>
+    <button id="btn-launch" class="primary-btn">Launch App Instructions</button>
   </div>
 </div>
 
@@ -975,6 +975,12 @@ function showInstallView(pageId) {
 }
 
 function proceedToApp() {
+    // Gatekeeping check: Do not open registration or application if running in standard browser
+    if (!isStandalone()) {
+        showPopup("🔒 Security Notice: Please open the app directly from your mobile home screen to register and use features.");
+        return;
+    }
+
     document.getElementById('pwaFlowContainer').style.display = 'none';
     let user = JSON.parse(localStorage.getItem("user"));
     if(user) {
@@ -1691,7 +1697,11 @@ if(btnInstall) {
 const btnLaunch = document.getElementById('btn-launch');
 if(btnLaunch) {
     btnLaunch.addEventListener('click', () => {
-      proceedToApp();
+      if (!isStandalone()) {
+        showPopup("📱 Please locate and tap the 'B.Ed Guru' icon on your mobile home screen to open the app.");
+      } else {
+        proceedToApp();
+      }
     });
 }
 </script>
