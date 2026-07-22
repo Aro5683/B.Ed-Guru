@@ -109,14 +109,15 @@ img {
 }
 
 .register {
-    max-width: 300px;
+    max-width: 320px;
     margin: 30px auto;
     padding: 30px 24px;
+    text-align: center;
 }
 
 .register h2 {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 12px;
     font-size: 18px;
     font-weight: 600;
     color: #1e3a8a;
@@ -584,9 +585,31 @@ img {
     <p id="welcomeText">Smart Mobile App Platform</p>
 </div>
 
-<div id="registerPage" class="register glass-panel">
+<!-- INSTALL APP LANDING PANEL -->
+<div id="installAppContainer" class="register glass-panel" style="display: block;">
+    <!-- Prompt State -->
+    <div id="promptState" style="display: block;">
+        <i class="fa-solid fa-download" style="font-size: 42px; color: var(--primary); margin-bottom: 16px;"></i>
+        <h2>Download Official App</h2>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px; line-height: 1.5;">
+            Get quick offline access, instant notifications, and all study materials right on your device.
+        </p>
+        <button id="installBtn" class="primary-btn"><i class="fa-solid fa-download"></i> Install App</button>
+    </div>
 
-    <!-- APP CONTENT -->
+    <!-- Success / Open App State -->
+    <div id="successState" style="display: none;">
+        <i class="fa-solid fa-circle-check" style="font-size: 42px; color: #10b981; margin-bottom: 16px;"></i>
+        <h2>App Installed!</h2>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px; line-height: 1.5;">
+            Thank you for downloading B.Ed Guru. Click below to continue to the application.
+        </p>
+        <button id="openAppBtn" class="primary-btn"><i class="fa-solid fa-arrow-right-to-bracket"></i> Open App</button>
+    </div>
+</div>
+
+<!-- STUDENT REGISTRATION FORM PANEL (Shown after app is opened/installed if unregistered) -->
+<div id="registerPage" class="register glass-panel" style="display: none;">
     <div id="appContent" style="display: block;">
         <h2>Student Registration</h2>
         <div class="input" id="container-name">
@@ -649,7 +672,6 @@ img {
 
         <button class="primary-btn" onclick="registerUser()">Register Platform</button>
     </div>
-
 </div>
 
 <div id="homePage" class="page">
@@ -858,6 +880,7 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwXpP5qxC_4vwnF7yZB3
 const PROXY_URL = "https://whatsapp.arotesting54.workers.dev/?url=";
 
 let pendingDriveUrl = "";
+let deferredPrompt = null;
 
 function showPopup(msg){
     document.getElementById("popupMsg").innerText = msg;
@@ -867,6 +890,12 @@ function showPopup(msg){
 function clearError(id) {
     document.getElementById("container-" + id).classList.remove("input-error");
 }
+
+// Listen for native PWA install prompt event
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+});
 
 window.addEventListener('DOMContentLoaded', () => {
     const inputs = ['name', 'gender', 'semester', 'medium', 'pedagogy', 'phone'];
@@ -893,19 +922,43 @@ window.addEventListener('DOMContentLoaded', () => {
 
     const installBtn = document.getElementById('installBtn');
     if(installBtn) {
-        installBtn.addEventListener('click', () => {
-            document.getElementById('promptState').style.display = 'none';
-            document.getElementById('successState').style.display = 'block';
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                deferredPrompt = null;
+                if (outcome === 'accepted') {
+                    document.getElementById('promptState').style.display = 'none';
+                    document.getElementById('successState').style.display = 'block';
+                } else {
+                    // Even if user declines browser prompt, allow proceeding to app
+                    proceedToApp();
+                }
+            } else {
+                // If browser doesn't support/trigger beforeinstallprompt or app is already installed
+                document.getElementById('promptState').style.display = 'none';
+                document.getElementById('successState').style.display = 'block';
+            }
         });
     }
 
     const openAppBtn = document.getElementById('openAppBtn');
     if(openAppBtn) {
         openAppBtn.addEventListener('click', () => {
-            initDashboard();
+            proceedToApp();
         });
     }
 });
+
+function proceedToApp() {
+    document.getElementById('installAppContainer').style.display = 'none';
+    let user = JSON.parse(localStorage.getItem("user"));
+    if(user) {
+        initDashboard();
+    } else {
+        document.getElementById('registerPage').style.display = 'block';
+    }
+}
 
 function registerUser(){
     const fields = ["name", "gender", "semester", "medium", "pedagogy", "phone"];
@@ -988,6 +1041,7 @@ function joinWhatsapp(){
 function initDashboard(){
     let user = JSON.parse(localStorage.getItem("user"));
     if(user){
+        document.getElementById("installAppContainer").style.display="none";
         document.getElementById("registerPage").style.display="none";
         document.getElementById("nav").style.display="flex";
         document.getElementById("welcomeText").innerText = "Welcome, " + user.name;
@@ -1012,8 +1066,6 @@ function resetAccount() {
         location.reload();
     }
 }
-
-window.addEventListener("DOMContentLoaded", initDashboard);
 
 const books = [
   // SEMESTER 1 - TAMIL MEDIUM
@@ -1549,13 +1601,13 @@ function sendChatbotRequest() {
     }, 400);
 }
 </script>
+
 <script>
 // Register Service Worker
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js')
       .then((reg) => {
-        // Detect SW updates automatically
         reg.onupdatefound = () => {
           const installingWorker = reg.installing;
           installingWorker.onstatechange = () => {
@@ -1570,7 +1622,6 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-// Automatically reload and fetch fresh data when connection restores
 window.addEventListener('online', () => {
   console.log('Internet connected! Syncing latest site content...');
   window.location.reload();
