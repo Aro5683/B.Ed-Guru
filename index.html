@@ -1712,6 +1712,67 @@ if(btnLaunch) {
     });
 }
 </script>
+<!-- Button to trigger the breakup dialog inside app settings -->
+  <button class="btn-delete-app" onclick="openBreakupModal()">Delete Account / Reset App</button>
 
+  <!-- 3. THE EMOTIONAL BREAKUP MODAL -->
+  <div id="breakupModal" class="pwa-modal-overlay">
+    <div class="pwa-modal-card">
+      <div class="pwa-emoji">💔</div>
+      <h3>Are you ending our bond?</h3>
+      <p>
+        Is this really the end? What about all your B.Ed study materials, saved notes, and exam prep progress? 🥺
+        <br><br>
+        If you reset now, everything will be deleted forever!
+      </p>
+
+      <div class="pwa-btn-group">
+        <button class="btn-stay" onclick="closeBreakupModal()">
+          No, I can't leave you! ❤️
+        </button>
+        <button class="btn-leave" onclick="confirmResetApp()">
+          Yes, break my heart & reset app...
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. JAVASCRIPT FOR MODAL & SHORTCUT CONTROL -->
+  <script>
+    // Open Modal
+    function openBreakupModal() {
+      document.getElementById('breakupModal').classList.add('active');
+    }
+
+    // Close Modal when user clicks "No, I can't leave you!"
+    function closeBreakupModal() {
+      document.getElementById('breakupModal').classList.remove('active');
+      alert("I knew you wouldn't leave! Let's get back to studying 🎓✨");
+    }
+
+    // Handle full app clear when user confirms
+    async function confirmResetApp() {
+      alert("Goodbye... Clearing all B.Ed Guru data 😭");
+
+      // Clear local storage and caches
+      localStorage.clear();
+      sessionStorage.clear();
+
+      if ('caches' in window) {
+        const cacheNames = await caches.keys();
+        await Promise.all(cacheNames.map(name => caches.delete(name)));
+      }
+
+      // Reload app
+      window.location.reload();
+    }
+
+    // Check if user came from long-press manifest shortcut (#settings)
+    window.addEventListener('DOMContentLoaded', () => {
+      if (window.location.hash === '#settings') {
+        openBreakupModal();
+      }
+    });
+  </script>
 </body>
 </html>
