@@ -600,7 +600,7 @@ img {
 
 .protection-notice {
  
-
+font-size: small;
   padding: 10px;
   border-radius: 6px;
  
@@ -628,13 +628,13 @@ img {
   <!-- PAGE 1: Not Installed -> Download / Install Page -->
   <div id="page-install" class="pwa-step-card hidden">
     <h1>Download Our Official App</h1>
-    <p style="font-size: 13px; color: var(--text-muted); margin-top: 8px;">To access protected features and content, please install our official app below.</p>
+    <p style="font-size: 16px; color: var(--text-muted); margin-top: 8px;">To access protected features and content, please install our official app below.</p>
     
     <button id="btn-install" class="primary-btn" style="margin-top: 15px;">Install App</button>
 
     <!-- Download Progress View (hidden by default) -->
     <div id="download-box" class="hidden" style="margin-top: 15px;">
-      <p style="font-size: 13px;">Downloading started... please wait</p>
+      <p style="font-size: 16px;">Downloading started... please wait</p>
       <div id="timer">30</div>
     </div>
   </div>
@@ -1705,7 +1705,7 @@ const btnLaunch = document.getElementById('btn-launch');
 if(btnLaunch) {
     btnLaunch.addEventListener('click', () => {
       if (!isStandalone()) {
-        showPopup("📱 Please locate and tap the 'B.Ed Guru' icon on your mobile home screen to open the app.");
+        showPopup("📱 Tap the 'B.Ed Guru' icon on your mobile home screen to open the app.");
       } else {
         proceedToApp();
       }
