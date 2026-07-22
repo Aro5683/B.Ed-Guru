@@ -1,134 +1,170 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stay with B.Ed Guru</title>
-    <!-- FontAwesome for the icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #0f172a;
-            color: #ffffff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-        }
-        .card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 35px 25px;
-            border-radius: 20px;
-            max-width: 420px;
-            width: 90%;
-            text-align: center;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-        }
-        .heart-icon {
-            font-size: 55px;
-            color: #ec4899;
-            margin-bottom: 20px;
-            animation: heartbeat 1.5s infinite;
-        }
-        h2 {
-            margin: 0 0 10px 0;
-            color: #f472b6;
-            font-size: 26px;
-            font-weight: 700;
-        }
-        h3 {
-            margin: 0 0 15px 0;
-            color: #cbd5e1;
-            font-size: 16px;
-            font-weight: 400;
-        }
-        p {
-            color: #94a3b8;
-            line-height: 1.6;
-            font-size: 15px;
-            margin-bottom: 20px;
-        }
-        .bond-message {
-            font-size: 14px;
-            color: #e2e8f0;
-            background: rgba(236, 72, 153, 0.1);
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid rgba(236, 72, 153, 0.2);
-            text-align: left;
-            margin-bottom: 25px;
-        }
-        .bond-message ul {
-            margin: 8px 0 0 0;
-            padding-left: 20px;
-            color: #cbd5e1;
-        }
-        .bond-message li {
-            margin-bottom: 6px;
-        }
-        .btn-stay {
-            display: inline-block;
-            background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
-            color: white;
-            text-decoration: none;
-            padding: 14px 24px;
-            border-radius: 10px;
-            font-weight: 600;
-            transition: transform 0.2s, opacity 0.2s;
-            border: none;
-            cursor: pointer;
-            width: 100%;
-            box-sizing: border-box;
-            font-size: 16px;
-            box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);
-        }
-        .btn-stay:hover {
-            transform: translateY(-1px);
-            opacity: 0.95;
-        }
-        @keyframes heartbeat {
-            0% { transform: scale(1); }
-            20% { transform: scale(1.1); }
-            40% { transform: scale(1); }
-            60% { transform: scale(1.1); }
-            80% { transform: scale(1); }
-            100% { transform: scale(1); }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emotional Retention Modal</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #121212;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    /* Trigger Button inside App Settings */
+    .danger-btn {
+      background: #ff4d4d;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    /* Modal Backdrop */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(5px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    /* Emotional Card */
+    .modal-card {
+      background: #1e1e1e;
+      border: 1px solid #333;
+      padding: 30px;
+      border-radius: 20px;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      transform: scale(0.8);
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .modal-overlay.active .modal-card {
+      transform: scale(1);
+    }
+
+    .emoji {
+      font-size: 50px;
+      margin-bottom: 10px;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    h2 {
+      margin-top: 0;
+      color: #ff6b6b;
+    }
+
+    p {
+      color: #ccc;
+      line-height: 1.5;
+      font-size: 15px;
+    }
+
+    .btn-group {
+      margin-top: 25px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* Stay Button (Big & Prominent) */
+    .btn-stay {
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      color: #000;
+      border: none;
+      padding: 14px;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    /* Leave Button (Small & Subtle) */
+    .btn-leave {
+      background: transparent;
+      color: #888;
+      border: none;
+      padding: 8px;
+      font-size: 13px;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    .btn-leave:hover {
+      color: #ff4d4d;
+    }
+  </style>
 </head>
 <body>
 
-    <div class="card">
-        <div class="heart-icon">
-            <i class="fa-solid fa-heart-crack"></i>
-        </div>
-        <h2>Are you leaving our circle?</h2>
-        <h3>Don't break the bond we've built...</h3>
-        
-        <p>
-            Becoming a great teacher is a shared journey. <strong>B.Ed Guru</strong> isn't just an application on your screen—it is your portal to a community of peers walking the exact same path as you.
-        </p>
-        
-        <div class="bond-message">
-            <strong>If you disconnect now, you leave behind:</strong>
-            <ul>
-                <li>Your structured semester study tracking.</li>
-                <li>Instant access to critical pedagogy support.</li>
-                <li>The community network helping you cross the finish line.</li>
-            </ul>
-        </div>
+  <!-- Example Setting Option -->
+  <button class="danger-btn" onclick="openBreakupModal()">Delete App Account</button>
 
-        <p style="font-size: 13px; color: #64748b;">
-            We grew this platform together. Let's finish this journey together.
-        </p>
-        
-        <button class="btn-stay" onclick="window.close()">❤️ Keep App & Stay Connected</button>
+  <!-- Emotional Popup -->
+  <div class="modal-overlay" id="breakupModal">
+    <div class="modal-card">
+      <div class="emoji">💔</div>
+      <h2>Are you really ending our bond?</h2>
+      <p>
+        Is this really the end? After all the good times, memories, and progress we made together... 🥺
+        <br><br>
+        If you leave now, all your custom data will be gone forever. Don't let us become just strangers with memories!
+      </p>
+
+      <div class="btn-group">
+        <button class="btn-stay" onclick="stayTogether()">
+          No, I can't leave you! ❤️
+        </button>
+        <button class="btn-leave" onclick="confirmBreakup()">
+          Yes, break my heart and uninstall...
+        </button>
+      </div>
     </div>
+  </div>
+
+  <script>
+    function openBreakupModal() {
+      document.getElementById('breakupModal').classList.add('active');
+    }
+
+    function stayTogether() {
+      document.getElementById('breakupModal').classList.remove('active');
+      alert("I knew you loved me! Welcome back 🥰");
+    }
+
+    function confirmBreakup() {
+      alert("Goodbye... I'll miss you 😭");
+      // Trigger actual delete or logout API here
+      document.getElementById('breakupModal').classList.remove('active');
+    }
+  </script>
 
 </body>
 </html>
