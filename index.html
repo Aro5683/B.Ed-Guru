@@ -1691,7 +1691,7 @@ if(btnInstall) {
       btnInstall.classList.add('hidden');
       downloadBox.classList.remove('hidden');
 
-      let timeLeft = 30;
+      let timeLeft = 60;
       timerEl.textContent = timeLeft;
 
       const countdown = setInterval(() => {
@@ -1711,7 +1711,7 @@ const btnLaunch = document.getElementById('btn-launch');
 if(btnLaunch) {
     btnLaunch.addEventListener('click', () => {
       if (!isStandalone()) {
-        showPopup("📱 Please locate and tap the 'B.Ed Guru' icon on your mobile home screen to open the app.");
+        showPopup("📱 Tap the 'B.Ed Guru' icon on your mobile home screen to open the app.");
       } else {
         proceedToApp();
       }
