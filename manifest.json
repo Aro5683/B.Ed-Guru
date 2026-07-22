@@ -23,14 +23,14 @@
   ],
   "shortcuts": [
     {
-      "name": "Settings & Account",
+      "name": "Dont Uninstall me🥺",
       "short_title": "Settings",
-      "description": "Manage your profile, data, or account settings",
+      "description": "Are you end our bonding? ",
       "url": "./index.html#settings",
       "icons": [
         {
-          "src": "icon-192.png",
-          "sizes": "192x192"
+          "src": "icon-512.png",
+          "sizes": "512x512"
         }
       ]
     }
