@@ -37,22 +37,25 @@
 
 /* Disable text selection and image dragging entirely */
 body {
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    background: linear-gradient(135deg, #e0f2fe 0%, #cce0ff 40%, #e0e7ff 100%);
-    background-attachment: fixed;
-    color: var(--text-main);
-    min-height: 100vh;
-    padding-bottom: 100px;
+    -webkit-touch-callout: none; /* iOS Safari long-press */
+    -webkit-user-select: none;   /* Safari */
+    -khtml-user-select: none;     /* Konqueror HTML */
+    -moz-user-select: none;        /* Firefox */
+    -ms-user-select: none;         /* Internet Explorer/Edge */
+    user-select: none;             /* Non-prefixed version, currently supported by Chrome, Opera and Edge */
 }
 
 img {
     pointer-events: none;
     -webkit-user-drag: none;
+}
+
+body {
+    background: linear-gradient(135deg, #e0f2fe 0%, #cce0ff 40%, #e0e7ff 100%);
+    background-attachment: fixed;
+    color: var(--text-main);
+    min-height: 100vh;
+    padding-bottom: 100px;
 }
 
 /* BRANDING HEADER */
@@ -114,7 +117,7 @@ img {
 
 /* REGISTRATION CONTAINER */
 .register {
-    max-width: 320px;
+    max-width: 300px;
     margin: 30px auto;
     padding: 30px 24px;
 }
@@ -582,7 +585,11 @@ img {
     width: 15px;
     height: 15px;
 }
+
+@keyframes qaPopupScale { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 </style>
+
 </head>
 
 <body>
@@ -597,8 +604,8 @@ img {
 
 <div id="registerPage" class="register glass-panel">
 
-    <!-- ORIGINAL APP CONTENT -->
-    <div id="appContent" style="display: none;">
+    <!-- APP CONTENT -->
+    <div id="appContent" style="display: block;">
         <h2>Student Registration</h2>
         <div class="input" id="container-name">
             <i class="fa fa-user"></i>
@@ -661,10 +668,8 @@ img {
         <button class="primary-btn" onclick="registerUser()">Register Platform</button>
     </div>
 
-    <!-- GATEKEEPER INSTALL SCREEN -->
+    <!-- INSTALL GATEKEEPER SCREEN -->
     <div id="installGatekeeper" style="display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 300px; padding: 20px; text-align: center; font-family: sans-serif;">
-        
-        <!-- STEP 1: WELCOME SCREEN -->
         <div id="promptState" style="text-align: center;">
             <h2 id="gatekeeperHeading">Welcome!</h2>
             <p id="gatekeeperText">You must install our official application to access the registration portal.</p>
@@ -673,7 +678,6 @@ img {
             <button class="primary-btn" id="openAppBtn" style="display: none; margin: 10px auto 0 auto;">Launch Application</button>
         </div>
 
-        <!-- STEP 2: STATUS SCREEN -->
         <div id="successState" style="display: none; text-align: center;">
             <div id="downloadingState">
                 <i class="fa fa-spinner fa-spin" style="font-size: 48px; color: #2563eb; margin-bottom: 15px;"></i>
@@ -705,7 +709,6 @@ img {
         <div>💰 Resale Old B.Ed Books</div>
         <button class="btn" onclick="openResale()">Sell Now</button>
     </div>
-    
     <input id="homeSearch" class="search" placeholder="Search prev. question.." onkeyup="searchHomeCards()">
 
     <div id="buyBooks"></div>
@@ -714,7 +717,7 @@ img {
       <div class="info-layout">
         <i class="fa-solid fa-file-pdf" style="color:#ef4444; font-size:20px;"></i>
         <div>
-          <span>old.Year Questions</span>
+          <span>Old Year Questions</span>
           <small>Format: GDrive Link</small>
         </div>
       </div>
@@ -902,11 +905,6 @@ img {
     </div>
 </div>
 
-<style>
-@keyframes qaPopupScale { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-</style>
-
 <script>
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwXpP5qxC_4vwnF7yZB3VjLYiHWvFt4W-ziYZv1cDXsUQWiorUtVGLgl9JZ4rn1b6w0CA/exec";
 const PROXY_URL = "https://whatsapp.arotesting54.workers.dev/?url=";
@@ -945,6 +943,22 @@ window.addEventListener('DOMContentLoaded', () => {
             element.value = savedValue;
         }
     });
+
+    // Event listeners for install gatekeeper buttons
+    const installBtn = document.getElementById('installBtn');
+    if(installBtn) {
+        installBtn.addEventListener('click', () => {
+            document.getElementById('promptState').style.display = 'none';
+            document.getElementById('successState').style.display = 'block';
+        });
+    }
+
+    const openAppBtn = document.getElementById('openAppBtn');
+    if(openAppBtn) {
+        openAppBtn.addEventListener('click', () => {
+            initDashboard();
+        });
+    }
 });
 
 function registerUser(){
@@ -993,7 +1007,6 @@ function registerUser(){
         return;
     }
 
-    // Fixed key to "user" across all app logic
     localStorage.setItem("user", JSON.stringify(data));
     
     ['name', 'gender', 'semester', 'medium', 'pedagogy', 'phone'].forEach(id => {
@@ -1023,7 +1036,7 @@ function joinWhatsapp(){
     setTimeout(()=>{
         showPopup("🎉 Registration Completed Successfully!");
         initDashboard();
-    }, 1000);
+    },1000);
 }
 
 function initDashboard(){
@@ -1050,7 +1063,6 @@ function initDashboard(){
 function resetAccount() {
     if(confirm("Are you sure you want to delete registration logs from this local device view?")) {
         localStorage.removeItem("user");
-        localStorage.removeItem("pwa_installed_successfully");
         location.reload();
     }
 }
@@ -1193,6 +1205,17 @@ const books = [
   {sem:"Semester 2", medium:"Tamil", title:"BD2SM Unit-3 TAM", file:"https://drive.google.com/file/d/1LUsdBuw2qw__wkt06cwT1pUpNkq_katW/view"},
   {sem:"Semester 2", medium:"Tamil", title:"BD2SM Unit-4 TAM", file:"https://drive.google.com/file/d/1utCmYZrYgNg4MMtuv6SAjlPPMi9NtE2P/view"},
   {sem:"Semester 2", medium:"Tamil", title:"BD2SM Unit-5 TAM", file:"https://drive.google.com/file/d/1KMXCDiQ_881BAlD5VRZl10OlyzCzYMGo/view"},
+  
+  // SEMESTER 2 PEDAGOGY ITEMS - TAMIL MEDIUM
+  {sem:"Semester 2", medium:"Tamil", title:"BD2TA Unit-1 TAM (Tamil Pedagogy)", file:"#"},
+  {sem:"Semester 2", medium:"Tamil", title:"BD2TA Unit-2 TAM (Tamil Pedagogy)", file:"#"},
+  {sem:"Semester 2", medium:"Tamil", title:"BD2TA Unit-3 TAM (Tamil Pedagogy)", file:"#"},
+  {sem:"Semester 2", medium:"Tamil", title:"BD2TA Unit-4 TAM (Tamil Pedagogy)", file:"#"},
+  {sem:"Semester 2", medium:"Tamil", title:"BD2TA Unit-5 TAM (Tamil Pedagogy)", file:"#"},
+  {sem:"Semester 2", medium:"Tamil", title:"BD2MA Unit-1 TAM (Math Pedagogy)", file:"#"},
+  {sem:"Semester 2", medium:"Tamil", title:"BD2MA Unit-2 TAM (Math Pedagogy)", file:"#"},
+  {sem:"Semester 2", medium:"Tamil", title:"BD2PS Unit-1 TAM (Physical Science Pedagogy)", file:"#"},
+  {sem:"Semester 2", medium:"Tamil", title:"BD2BS Unit-1 TAM (Biological Science Pedagogy)", file:"#"},
 
   // SEMESTER 2 - ENGLISH MEDIUM
   {sem:"Semester 2", medium:"English", title:"BD2AL Unit-1 ENG", file:"https://drive.google.com/file/d/1vVQb1vX28VLydDI75APmiUnZ8aj1x_F5/view"},
@@ -1214,7 +1237,12 @@ const books = [
   {sem:"Semester 2", medium:"English", title:"BD2SM Unit-2 ENG", file:"https://drive.google.com/file/d/1jSmRJEbeZjJLJkAASGLs7S5KrIVtju5g/view"},
   {sem:"Semester 2", medium:"English", title:"BD2SM Unit-3 ENG", file:"https://drive.google.com/file/d/1uJXgF0oEOe9UiscOv29j3bvNniWkOyRE/view"},
   {sem:"Semester 2", medium:"English", title:"BD2SM Unit-4 ENG", file:"https://drive.google.com/file/d/1b88uqqXLWiU580AenD_JTyT_0d6VtLry/view"},
-  {sem:"Semester 2", medium:"English", title:"BD2SM Unit-5 ENG", file:"https://drive.google.com/file/d/1cEeWpt5gw_D3Q7M8G5VF_xfhTpmeWfBO/view"}
+  {sem:"Semester 2", medium:"English", title:"BD2SM Unit-5 ENG", file:"https://drive.google.com/file/d/1cEeWpt5gw_D3Q7M8G5VF_xfhTpmeWfBO/view"},
+  
+  // SEMESTER 2 PEDAGOGY ITEMS - ENGLISH MEDIUM
+  {sem:"Semester 2", medium:"English", title:"BD2EN Unit-1 ENG (English Pedagogy)", file:"#"},
+  {sem:"Semester 2", medium:"English", title:"BD2MA Unit-1 ENG (Math Pedagogy)", file:"#"},
+  {sem:"Semester 2", medium:"English", title:"BD2PS Unit-1 ENG (Physical Science Pedagogy)", file:"#"}
 ];
 
 function loadNotes(){
@@ -1227,7 +1255,7 @@ function loadNotes(){
     document.getElementById("medTitle").innerText = " " + user.medium + " Medium";
     let found = false;
 
-    books.forEach(b => {
+    books.forEach(b=>{
         if(b.medium.toLowerCase() !== user.medium.toLowerCase()) return;
 
         if(b.sem === user.semester){
@@ -1265,8 +1293,8 @@ function loadNotes(){
 }
 
 function triggerGdrivePopup(url) {
-    if(!url || url === "#") {
-        showPopup("ℹ️ This specific pedagogy asset is currently being uploaded. Check back soon!");
+    if(url === "#") {
+        showPopup("ℹ️ This specific pedagogy asset is being uploaded to GDrive. Check back soon!");
         return;
     }
     pendingDriveUrl = url;
@@ -1282,7 +1310,7 @@ function closeGdrivePopup() {
 }
 
 function openExternalLink(url, textLabel){
-    if(!url || url === "#") return;
+    if(url === "#") return;
     let loader = document.getElementById("loader");
     document.getElementById("loaderText").innerText = textLabel || "Opening Link...";
     loader.style.display = "flex";
@@ -1330,9 +1358,12 @@ function showPage(p){
         
         document.getElementById("qaSubTitle").innerText = ` Q&A FOR ${chosenSem.toUpperCase()}`;
         
-        let bloggerUrl = chosenSem === "Semester 1" 
-            ? "https://semester1-questions.blogspot.com" 
-            : "https://semester2-questions.blogspot.com";
+        let bloggerUrl = "";
+        if(chosenSem === "Semester 1") {
+            bloggerUrl = "https://semester1-questions.blogspot.com"; 
+        } else {
+            bloggerUrl = "https://semester2-questions.blogspot.com"; 
+        }
         
         loadBloggerPosts(bloggerUrl);
     }
@@ -1342,7 +1373,6 @@ function showPage(p){
         document.getElementById("badge").style.display="none";
     }
     if(p === 'accountPage') document.getElementById('nav-account').classList.add("active-tab");
-    
     handleQaFloatingWidget(p);
 }
 
@@ -1376,7 +1406,7 @@ function loadBloggerPosts(blogUrl) {
             if (entries && entries.length > 0) {
                 let badge = document.getElementById("qaBadge");
                 badge.innerText = entries.length;
-                if(!document.getElementById("qaPage").classList.contains("active")) {
+                if(document.getElementById("qaPage").classList.contains("active") === false) {
                     badge.style.display = "inline-block";
                 }
             }
@@ -1392,8 +1422,9 @@ function loadBloggerPosts(blogUrl) {
                     <div class="card" style="display: block; margin-bottom: 15px; padding: 15px; text-align: left; position: relative;">
                         <h4 style="color: var(--primary); margin: 0 0 8px 0; font-size: 15px; font-weight: 600;">🌷 ${title}</h4>
                         
-                        <div style="position: relative; max-height: 48px; overflow: hidden; font-size: 13px; color: var(--text-main); line-height: 1.6; margin-bottom: 12px; padding-right: 5px;">
+                        <div style="position: relative; max-height: 22px; overflow: hidden; font-size: 13px; color: var(--text-main); line-height: 1.6; margin-bottom: 12px; padding-right: 5px;">
                             ${fullContent}
+                            <div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, var(--bg-card) 95%); pointer-events: none;"></div>
                         </div>
                         
                         <button class="btn" style="width: 100%; padding: 6px 12px; font-size: 12px;" onclick="viewFullQaArticle(${index})">View Full Answer</button>
@@ -1406,7 +1437,7 @@ function loadBloggerPosts(blogUrl) {
             console.error("Layout error:", error);
             container.innerHTML = `
                 <div class='card' style='text-align:center; padding: 20px; color: var(--error); display:block;'>
-                    <span>Unable to load posts natively at this time.</span>
+                    <span>Unable to load posts natively.</span><br/>
                 </div>`;
         });
 }
@@ -1417,17 +1448,17 @@ function viewFullQaArticle(id) {
     
     let overlay = document.createElement("div");
     overlay.id = "qaFullViewOverlay";
-    // Fixed: Theme-consistent glass background instead of 'wheat'
-    overlay.style = "position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: linear-gradient(135deg, #e0f2fe 0%, #cce0ff 40%, #e0e7ff 100%); z-index: 9999; overflow-y: auto; padding: 20px 15px; box-sizing: border-box;";
+    overlay.style = "position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background-color:wheat; z-index: 9999; overflow-y: auto; padding: 20px 15px; box-sizing: border-box;";
     
     overlay.innerHTML = `
         <div style="display: flex; align-items: center; margin-bottom: 20px; border-bottom: 1px solid rgba(0,0,0,0.08); padding-bottom: 12px;">
-            <button onclick="closeFullQaArticle()" style="background: none; border: none; color: var(--primary); font-size: 16px; cursor: pointer; display: flex; align-items: center; font-weight: 600;">
+            <button onclick="closeFullQaArticle()" style="background: none; border: none; color: var(--primary); font-size: 16px; cursor: pointer; display: flex; align-items: center; font-weight: 500;">
                 <i class="fa fa-arrow-left" style="margin-right: 8px;"></i> Back
             </button>
+            <span style="margin-left: 15px; font-weight: 600; font-size: 15px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></span>
         </div>
         
-        <div class="card" style="display: block; padding: 18px; text-align: left; background: rgba(255,255,255,0.85);">
+        <div class="card" style="display: block; padding: 18px; text-align: left;">
             <h3 style="color: var(--primary); margin: 0 0 14px 0; font-size: 16px; font-weight: 600; line-height: 1.4;">🌷 ${title}</h3>
             <div style="font-size: 14px; color: var(--text-main); line-height: 1.7;">
                 ${body}
@@ -1483,21 +1514,19 @@ function sendResale(){
     closeResale();
 }
 
-const resaleBooks = []; // Empty or add initial books as needed
-
+const resaleBooks = [{name:"",author:"",price:""}];
 function loadBuyBooks(){
     let container = document.getElementById("buyBooks");
     container.innerHTML = "<h3>Previous year question papers</h3>";
     let counter = 0;
-    resaleBooks.forEach(b => { 
+    resaleBooks.forEach(b=>{ 
         if(b.name) { 
-            // Fixed: Added home-card class for search compatibility
-            container.innerHTML += `<div class="card home-card"><div><b>${b.name}</b><br><small>${b.author}</small></div><div><span class="price-tag">₹${b.price}</span> <button class="btn" onclick="buyBook('${b.name}','${b.author}','${b.price}')">Buy</button></div></div>`; 
+            container.innerHTML += `<div class="card"><div><b>${b.name}</b><br><small>${b.author}</small></div><div><span class="price-tag">₹${b.price}</span> <button class="btn" onclick="buyBook('${b.name}','${b.author}','${b.price}')">Buy</button></div></div>`; 
             counter++;
         } 
     });
     if(counter === 0) {
-        container.innerHTML += "<div class='card home-card' style='display:block; text-align:center;'><span style='font-size:12px; color:var(--text-muted);'>No user listings currently available.</span></div>";
+        container.innerHTML += "<div class='card'><span>No listings available yet.</span></div>";
     }
 }
 
@@ -1577,7 +1606,7 @@ function sendChatbotRequest() {
 // SCREENSHOT DETERRENT & SECURITY LOGIC
 document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
-        document.body.style.filter = "blur(10px)";
+        document.body.style.filter = "blur(12px)";
     } else {
         setTimeout(() => {
             document.body.style.filter = "none";
@@ -1586,7 +1615,7 @@ document.addEventListener("visibilitychange", () => {
 });
 
 window.addEventListener("blur", () => {
-    document.body.style.filter = "blur(10px)";
+    document.body.style.filter = "blur(12px)";
 });
 
 window.addEventListener("focus", () => {
@@ -1612,212 +1641,13 @@ document.addEventListener('copy', (e) => {
     navigator.clipboard.writeText("[Protected Content]");
 });
 </script>
-
 <script>
-// PWA GATEKEEPER ROUTER
-let deferredPrompt = null;
-let countdownInterval = null;
-let logicalTimeLeft = 60;
-let wakeLock = null;
-
-const gatekeeper = document.getElementById('installGatekeeper');
-const promptState = document.getElementById('promptState');
-const successState = document.getElementById('successState');
-const appContent = document.getElementById('appContent');
-const installBtn = document.getElementById('installBtn');
-const openAppBtn = document.getElementById('openAppBtn');
-const timerDisplay = document.getElementById('timer');
-const downloadingState = document.getElementById('downloadingState');
-const finalTimerState = document.getElementById('finalTimerState');
-
-const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-
-async function requestWakeLock() {
-    if ('wakeLock' in navigator) {
-        try {
-            wakeLock = await navigator.wakeLock.request('screen');
-        } catch (err) {
-            console.error(`Wake Lock Error: ${err.name}, ${err.message}`);
-        }
-    }
-}
-
-function releaseWakeLock() {
-    if (wakeLock !== null) {
-        wakeLock.release().then(() => { wakeLock = null; });
-    }
-}
-
-document.addEventListener('visibilitychange', async () => {
-    if (countdownInterval && document.visibilityState === 'visible') {
-        await requestWakeLock();
-    }
-});
-
-function enforceAbsoluteLockout() {
-    if (countdownInterval) clearInterval(countdownInterval);
-    releaseWakeLock();
-    
-    document.body.innerHTML = `
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; width: 100vw; position: fixed; top: 0; left: 0; z-index: 999999; font-family: sans-serif; text-align: center; background: #0f172a; color: #fff; padding: 20px; box-sizing: border-box;">
-            <div style="width: 64px; height: 64px; background: rgba(34, 197, 94, 0.1); color: #22c55e; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; font-size: 32px;">✓</div>
-            <h2 style="margin: 0 0 10px 0; font-size: 22px; font-weight: 700;">Platform Security Lock</h2>
-            <p style="color: #94a3b8; max-width: 400px; margin: 0 0 25px 0; line-height: 1.6; font-size: 14px;">
-                Your account registration and device configurations are active.<br><br>
-                Access via standard web browsers is strictly disabled for security compliance. Please use the official application installed on your home screen.
-            </p>
-            <button onclick="launchAppViaHref()" style="padding: 12px 24px; background: #3b82f6; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 15px;">
-                Launch B.Ed Guru
-            </button>
-        </div>
-    `;
-}
-
-function launchAppViaHref() {
-    const currentOrigin = window.location.origin;
-    window.location.hash = "pwa-launch";
-    window.open(`${currentOrigin}/?display=standalone&pwa=true`, '_blank');
-}
-
-async function runGatekeeperRouting() {
-    // Fixed: Standardized check against "user" key
-    const isRegistered = localStorage.getItem('user');
-    const isSetupDone = localStorage.getItem('pwa_installed_successfully') === 'true';
-    
-    if (!isStandalone && (isRegistered || isSetupDone)) {
-        enforceAbsoluteLockout();
-        return;
-    }
-
-    const gk = document.getElementById('installGatekeeper') || gatekeeper;
-    const ac = document.getElementById('appContent') || appContent;
-    const ib = document.getElementById('installBtn') || installBtn;
-    const ob = document.getElementById('openAppBtn') || openAppBtn;
-
-    if (isStandalone) {
-        if (gk) gk.style.display = 'none';
-        if (ac) ac.style.display = 'block';
-    } else {
-        if (gk) gk.style.display = 'flex';
-        if (ac) ac.style.display = 'none';
-        
-        let isAppTrulyPresent = isSetupDone;
-        
-        if ('getInstalledRelatedApps' in navigator) {
-            try {
-                const relatedApps = await navigator.getInstalledRelatedApps();
-                if (relatedApps.length > 0) isAppTrulyPresent = true;
-            } catch (err) {
-                isAppTrulyPresent = isSetupDone;
-            }
-        }
-        
-        if (isAppTrulyPresent) {
-            const heading = document.getElementById('gatekeeperHeading');
-            const text = document.getElementById('gatekeeperText');
-            
-            if (heading) heading.innerText = "App Already Installed! 🎉";
-            if (text) text.innerText = "You have already configured B.Ed Guru on this device.";
-            
-            if (ib) ib.style.display = 'none';
-            if (ob) ob.style.display = 'block';
-        } else {
-            const heading = document.getElementById('gatekeeperHeading');
-            const text = document.getElementById('gatekeeperText');
-            
-            if (heading) heading.innerText = "Welcome!";
-            if (text) text.innerText = "You must install our official application to access the registration portal.";
-            
-            if (ib) ib.style.display = 'block';
-            if (ob) ob.style.display = 'none';
-        }
-    }
-}
-
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', runGatekeeperRouting);
-} else {
-    runGatekeeperRouting();
-}
-
-async function startInstallationTimer() {
-    localStorage.setItem('pwa_installed_successfully', 'true');
-    await requestWakeLock();
-    
-    const ps = document.getElementById('promptState') || promptState;
-    const ss = document.getElementById('successState') || successState;
-    const ac = document.getElementById('appContent') || appContent;
-    const ds = document.getElementById('downloadingState') || downloadingState;
-    const fs = document.getElementById('finalTimerState') || finalTimerState;
-    const td = document.getElementById('timer') || timerDisplay;
-
-    if (ps) ps.style.display = 'none';
-    if (ss) ss.style.display = 'block';
-    if (ac) ac.style.display = 'none';
-    if (ds) ds.style.display = 'block';
-    if (fs) fs.style.display = 'none';
-
-    logicalTimeLeft = 60;
-    if (td) td.innerText = logicalTimeLeft;
-
-    if (countdownInterval) clearInterval(countdownInterval);
-
-    countdownInterval = setInterval(() => {
-        logicalTimeLeft--;
-        if (td) td.innerText = logicalTimeLeft;
-        
-        if (logicalTimeLeft <= 0) {
-            clearInterval(countdownInterval);
-            enforceAbsoluteLockout();
-        }
-    }, 1000);
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    const ob = document.getElementById('openAppBtn') || openAppBtn;
-    const ib = document.getElementById('installBtn') || installBtn;
-
-    if (ob) {
-        ob.addEventListener('click', () => { launchAppViaHref(); });
-    }
-
-    if (ib) {
-        ib.addEventListener('click', async () => {
-            if (!deferredPrompt) {
-                alert("⏳ Please make sure your internet connection is stable. If the prompt doesn't appear, try reloading the page.");
-                return;
-            }
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') {
-                deferredPrompt = null;
-                startInstallationTimer();
-            }
-        });
-    }
-});
-
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-});
-
-window.addEventListener('appinstalled', () => {
-    deferredPrompt = null;
-    if (!countdownInterval) startInstallationTimer();
-});
-
 if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js') 
-            .then(registration => {
-                console.log('Service Worker registered successfully!', registration.scope);
-                runGatekeeperRouting();
-            })
-            .catch(error => {
-                console.error('Service Worker registration failed:', error);
-            });
-    });
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => console.log('PWA Service Worker registered:', reg.scope))
+      .catch(err => console.error('PWA Service Worker registration failed:', err));
+  });
 }
 </script>
 </body>
