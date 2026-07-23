@@ -615,6 +615,20 @@ img {
 
 @keyframes qaPopupScale { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+
+
+
+    /* ADD THIS TO YOUR <style> SECTION */
+@keyframes highlightPulse {
+    0% { outline: 3px solid #2563eb; background: rgba(37, 99, 235, 0.15); transform: scale(1.02); }
+    50% { outline: 3px solid #2563eb; background: rgba(37, 99, 235, 0.25); transform: scale(1.02); }
+    100% { outline: none; background: var(--glass-bg); transform: scale(1); }
+}
+
+.highlighted-content {
+    animation: highlightPulse 3s ease-in-out forwards;
+}
 </style>
 
 </head>
@@ -828,6 +842,25 @@ img {
         <button class="btn" onclick="shareContent()"><i class="fa fa-share-alt"></i> Share</button>
     </div>
 
+
+<!-- ADD THIS INSIDE #accountPage RIGHT ABOVE THE RESET BUTTON -->
+<div class="section-title">Admin Link Generator</div>
+<div class="card" style="flex-direction: column; align-items: stretch; gap: 10px;">
+    <div style="font-size:12px; color:var(--text-muted);">Generate shareable deep links for WhatsApp:</div>
+    <select id="adminTargetPage" class="search" style="margin-bottom:0;">
+        <option value="homePage">Home Page</option>
+        <option value="notesPage">Notes Page</option>
+        <option value="qaPage">Q&A Page</option>
+        <option value="noticesPage">Notices Page</option>
+    </select>
+    <input id="adminSearchQuery" class="search" placeholder="Filter/Search query (optional)" style="margin-bottom:0;">
+    <button class="primary-btn" onclick="generateAndShareLink()"><i class="fa-brands fa-whatsapp"></i> Generate & Share to WhatsApp</button>
+</div>
+
+
+
+
+    
     <button class="primary-btn" style="background: linear-gradient(135deg, #ef4444, #b91c1c); margin-top: 15px; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.25);" onclick="resetAccount()">Reset Registration Data</button>
 </div>
 
@@ -1718,6 +1751,74 @@ if(btnLaunch) {
     });
 }
 </script>
+<script>
+    // ADD THESE FUNCTIONS INSIDE YOUR <script> TAG
 
+// 1. Function for Admin to Generate and Share Links
+function generateAndShareLink() {
+    const targetPage = document.getElementById("adminTargetPage").value;
+    const searchQuery = document.getElementById("adminSearchQuery").value.trim();
+    
+    // Construct base URL using current location
+    let baseUrl = window.location.origin + window.location.pathname;
+    let shareableUrl = `${baseUrl}?target=${encodeURIComponent(targetPage)}`;
+    
+    if (searchQuery) {
+        shareableUrl += `&query=${encodeURIComponent(searchQuery)}`;
+    }
+
+    const shareText = `📚 *Check out this content on B.Ed Guru!*\n\nTap the link below to open directly in the app:\n${shareableUrl}`;
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+    
+    window.open(whatsappUrl, '_blank');
+}
+
+// 2. Auto-route and Highlight deep-linked content when the app opens
+function handleIncomingDeepLink() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetPage = urlParams.get('target');
+    const query = urlParams.get('query');
+
+    if (targetPage) {
+        // Navigate to the requested tab/page
+        showPage(targetPage);
+
+        if (query) {
+            // Apply query to target page filters
+            if (targetPage === 'notesPage') {
+                const searchInput = document.getElementById('search');
+                if (searchInput) {
+                    searchInput.value = query;
+                    searchNotes();
+                }
+            } else if (targetPage === 'homePage') {
+                const homeSearchInput = document.getElementById('homeSearch');
+                if (homeSearchInput) {
+                    homeSearchInput.value = query;
+                    searchHomeCards();
+                }
+            }
+
+            // Highlight the matching item card
+            setTimeout(() => {
+                const cards = document.querySelectorAll(`#${targetPage} .card`);
+                cards.forEach(card => {
+                    if (card.innerText.toLowerCase().includes(query.toLowerCase())) {
+                        card.classList.add('highlighted-content');
+                        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                });
+            }, 500);
+        }
+    }
+}
+
+// Update proceedToApp() to trigger deep link resolution upon startup
+const originalProceedToApp = proceedToApp;
+proceedToApp = function() {
+    originalProceedToApp();
+    handleIncomingDeepLink();
+};
+</script>
 </body>
 </html>
