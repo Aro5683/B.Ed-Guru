@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bed-guru-v3'; // Updated cache version
+const CACHE_NAME = 'bed-guru-v4'; // Updated cache version
 
 const ASSETS_TO_CACHE = [
   './',
@@ -44,7 +44,6 @@ self.addEventListener('activate', (event) => {
 
 // 3. FETCH: Network-First (Online = Fresh Updates, Offline = Cache)
 self.addEventListener('fetch', (event) => {
-  // Only handle HTTP/HTTPS GET requests
   if (event.request.method !== 'GET' || !event.request.url.startsWith('http')) {
     return;
   }
@@ -52,8 +51,11 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     fetch(event.request)
       .then((networkResponse) => {
-        // If network request succeeds (Status 200/opaque CDN), update cache
-        if (networkResponse && networkResponse.status === 200) {
+        // Updated check: allow status 200 OR type 'opaque' / status 0 for external CDNs
+        if (
+          networkResponse && 
+          (networkResponse.status === 200 || networkResponse.type === 'opaque')
+        ) {
           const responseToCache = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(event.request, responseToCache);
