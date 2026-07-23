@@ -843,18 +843,39 @@ img {
     </div>
 
 
-<!-- ADD THIS INSIDE #accountPage RIGHT ABOVE THE RESET BUTTON -->
-<div class="section-title">Admin Link Generator</div>
-<div class="card" style="flex-direction: column; align-items: stretch; gap: 10px;">
-    <div style="font-size:12px; color:var(--text-muted);">Generate shareable deep links :</div>
-    <select id="adminTargetPage" class="search" style="margin-bottom:0;">
-        <option value="homePage">Home Page</option>
-        <option value="notesPage">Notes Page</option>
-        <option value="qaPage">Q&A Page</option>
-        <option value="noticesPage">Notices Page</option>
-    </select>
-    <input id="adminSearchQuery" class="search" placeholder="Filter/Search query (optional)" style="margin-bottom:0;">
-    <button class="primary-btn" onclick="generateAndShareLink()"><i class="fa-brands fa-whatsapp"></i> Generate</button>
+<!-- REPLACE THE ADMIN SECTION IN #accountPage WITH THIS -->
+<div class="section-title">Share & Admin Controls</div>
+
+<div class="card" style="flex-direction: column; align-items: stretch; gap: 12px;">
+    <!-- Default Public Share Button -->
+    <button class="primary-btn" onclick="shareAppGeneral()" style="background-color: #25D366; color: white;">
+        <i class="fa-brands fa-whatsapp"></i> Share App with Friends
+    </button>
+
+    <!-- Subtle Admin Unlock Trigger -->
+    <div style="text-align: right;">
+        <button onclick="toggleAdminAccess()" style="background:none; border:none; color:var(--text-muted); font-size:12px; cursor:pointer;">
+            <i class="fa-solid fa-lock"></i> Admin Panel
+        </button>
+    </div>
+
+    <!-- Hidden Admin Panel (Requires Password) -->
+    <div id="adminPanel" style="display: none; border-top: 1px solid var(--border-color, #eee); pt-3; margin-top: 5px; flex-direction: column; gap: 10px;">
+        <div style="font-size:12px; font-weight: bold; color:var(--text-color);"> Admin Deep Link Generator</div>
+        
+        <select id="adminTargetPage" class="search" style="margin-bottom:0;">
+            <option value="homePage">Home Page</option>
+            <option value="notesPage">Notes Page</option>
+            <option value="qaPage">Q&A Page</option>
+            <option value="noticesPage">Notices Page</option>
+        </select>
+        
+        <input id="adminSearchQuery" class="search" placeholder="Filter/Search query (optional)" style="margin-bottom:0;">
+        
+        <button class="primary-btn" onclick="generateAndShareLink()">
+            <i class="fa-brands fa-whatsapp"></i> Generate Deep Link
+        </button>
+    </div>
 </div>
 
 
@@ -1826,5 +1847,42 @@ proceedToApp = function() {
     handleIncomingDeepLink();
 };
 </script>
+
+    <script>
+        // ADD / UPDATE THESE FUNCTIONS IN YOUR <script> TAG
+
+// Define your secret admin password here
+const ADMIN_PASSWORD = "yourSecretPassword123"; 
+
+// Public option: Shares the standard home URL with general text
+function shareAppGeneral() {
+    const shareText = `📚 *Download & Open B.Ed Guru App!*\n\nAccess study notes, Q&A, and notices here:\n${window.location.origin + window.location.pathname}`;
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+    window.open(whatsappUrl, '_blank');
+}
+
+// Handles password verification to unlock/toggle the admin panel
+function toggleAdminAccess() {
+    const adminPanel = document.getElementById("adminPanel");
+
+    // If currently visible, hide it
+    if (adminPanel.style.display === "flex") {
+        adminPanel.style.display = "none";
+        return;
+    }
+
+    // Prompt for password
+    const enteredPassword = prompt("Restricted Area: Only Admin can access.\nPlease enter password:");
+
+    if (enteredPassword === null) return; // User cancelled prompt
+
+    if (enteredPassword === ADMIN_PASSWORD) {
+        adminPanel.style.display = "flex";
+        alert("Access Granted! Admin Panel Unlocked.");
+    } else {
+        alert("Access Denied: Incorrect Password!");
+    }
+}
+    </script>
 </body>
 </html>
